@@ -97,12 +97,14 @@ class Quran
 		foreach($json_array -> data as $data) {
 			foreach ($data as $matches => $match) {
 				if ($jumlah_ayat == 0) {
-					$result .= $match->text."\r\n\r\nBeberapa referensi lain:\r\n";
+					$surah_name = $match->surah->name;
+					utf8_decode($surah_name);
+					$result .= $match->text."\r\n". ' '.$match->numberInSurah.' : '.$surah_name."\r\n\r\nBeberapa referensi lain:\r\n";
 				}
 				else {
 					$surah_name = $match->surah->name;
 					utf8_decode($surah_name);
-					$result .= $surah_name.':'.$match->numberInSurah."\r\n";
+					$result .= ' '.$match->numberInSurah.' : '.$surah_name."\r\n";
 				}
 
 				if ($jumlah_ayat > 5) break;
