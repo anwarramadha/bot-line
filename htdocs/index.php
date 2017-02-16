@@ -1,5 +1,5 @@
 <?php
-
+require_once (__DIR__.'/classes/class.php');
 require __DIR__ . '/../lib/vendor/autoload.php';
 
 use \LINE\LINEBot\SignatureValidator as SignatureValidator;
@@ -49,8 +49,11 @@ $app->post('/', function ($request, $response)
 		{
 			if($event['message']['type'] == 'text')
 			{
+				//create request to al-quran API
+				$req = new Parser($event['message']['text']);
+
 				// send same message as reply to user
-				$result = $bot->replyText($event['replyToken'], $event['message']['text']);
+				$result = $bot->replyText($event['replyToken'], $req->parser());
 
 				// or we can use pushMessage() instead to send reply message
 				// $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($event['message']['text']);
