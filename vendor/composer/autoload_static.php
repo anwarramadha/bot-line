@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita50a13c18e729c5ab7230262bbc12728
+class ComposerStaticInit5f547eb78acc8c598cbbdd90100e74cf
 {
     public static $files = array (
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
@@ -72,14 +72,21 @@ class ComposerStaticInita50a13c18e729c5ab7230262bbc12728
                 0 => __DIR__ . '/..' . '/pimple/pimple/src',
             ),
         ),
+        'A' => 
+        array (
+            'AlQuranCloud\\ApiClient' => 
+            array (
+                0 => __DIR__ . '/../../..' . '/htdocs/classes',
+            ),
+        ),
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita50a13c18e729c5ab7230262bbc12728::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita50a13c18e729c5ab7230262bbc12728::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInita50a13c18e729c5ab7230262bbc12728::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5f547eb78acc8c598cbbdd90100e74cf::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5f547eb78acc8c598cbbdd90100e74cf::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5f547eb78acc8c598cbbdd90100e74cf::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

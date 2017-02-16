@@ -1,4 +1,4 @@
 <?php
-	require_once (__DIR__.'classes/class.php');
-	$req = new Parser('!ayat alfatihah:1');
-	echo $req.parser();
+	require __DIR__.'/classes/Parser.class.php';
+	require_once __DIR__ . '/../lib/vendor/autoload.php';
+	echo Parser::parse('!ayat arrahman:1');

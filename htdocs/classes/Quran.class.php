@@ -1,12 +1,12 @@
 <?php
+require 'Client.class.php';
 
-class Parser 
+class Quran 
 {
 	private $text; //input dari user
-	private $cari_alquran;
-	private $base_url = 'http://api.alquran.cloud/';
-	private $err_msg = "Masukkan Anda salah, Silahkan ketik !ayat Nomor/nama surat:ayat";
-	private $nama_surat = array("fatihah", "baqarah", "imran", "nisa", "ma-idah", "an'am", "a'raf", "anfal", "taubah", "yunus",
+	private $err_input = "Masukkan Anda salah, Silahkan ketik !ayat Nomor/nama surat:ayat";
+	private $err_result = "Maaf data yang anda masukkan tidak ada di database kami";
+	private $nama_surat = array("fatihah", "baqarah", "imran", "nisa", "maidah", "an'am", "a'raf", "anfal", "taubah", "yunus",
 								"hud", "yusuf", "ra'd", "ibrahim", "hijr", "nahl", "isra", "kahf", "maryam", "tha ha",
 								"anbiya", "hajj", "mu'minun", "nur", "furqan", "syu'ara'", "naml", "qashash", "ankabut", "rum",
 								"luqman", "sajdah", "ahzab", "saba'", "fathir", "ya sin", "ash-shaffat", "shad", "zumar", "ghafir",
@@ -19,11 +19,15 @@ class Parser
 								"qari'ah", "takatsur", "ashr", "humazah", "fil", "quraisy", "ma'un", "kautsar", "kafirun", "nashr", 
 								"lahab", "ikhlas", "falaq", "nas");
 	
-	//konstruktor
+	
 	public function __construct($text) {
+		error_reporting(0);
 		$this->text = $text;
 	}
 
+	public function geterrormsg() {
+		return $this->err_input;
+	}
 	//cek apakah nomor surat ditulis secara eksplisit
 	private function isnomorsurataval() {
 		$jumlah_digit = strpos($this->text, ':');
@@ -45,13 +49,14 @@ class Parser
 		return FALSE;
 	}
 
-	private function getJson($url) {
-		$json_raw = file_get_contents($url);
-		return json_decode($json_raw);
-	}
+	// public static function getJson($url) {
+	// 	$json_raw = file_get_contents($url);
+	// 	return json_decode($json_raw);
+	// }
 
-	private function cariAyat() {
-		error_reporting(0);
+	public function cariAyat() {
+		//buat objek client api
+		$client = new Client; 
 
 		//hapus ' ' dan kata !ayat
 		while ($dummy = strpos($this->text, ' ') !== FALSE) {
@@ -64,39 +69,53 @@ class Parser
 
 		if ($jumlah_karakter !== TRUE) {
 			$this->text = $this->carinomorsurat($jumlah_karakter);
-			if ($this->text == FALSE) return $this->err_msg;
+			if ($this->text == FALSE) return $this->err_input;
 		}
 
-		//Cari ayat dalam bahasa arab
-		$json_array = $this->getJson($this->base_url.'ayah/'.$this->text.'/ar.asad');
 		$result = '';
-
-		foreach ($json_array as $datas => $data) {
-			$result .= $data->text;
-		}
+		//Cari ayat dalam bahasa arab
+		$json_array = $client->ayah($this->text);
+		$result =  $json_array -> data -> text;
 
 		//Cari arti ayat yang diminta
-		$json_array = $this->getJson($this->base_url.'ayah/'.$this->text.'/en.asad');
+		$json_array = $client->ayah($this->text, 'id.indonesian');
 
 		$result .= "\r\n\r\n"; //tambahkan enter
-		foreach ($json_array as $datas => $data) {
-			$result .= $data->text;
-		}
+		$result .= $json_array -> data -> text;
 
 		utf8_decode($result);
-		return $result;
+		unset($client);
+		if ($result!='') return $result;
+		return $this->err_result;
 	}
 
-	private function cariAlquran() {
-		$result = "anwar ramadha";
-		utf8_encode($result);
-		return result;
-	}
+	public function cariAlquran() {
+		//buat objek alquran cloud client api
+		$client = new Client();
 
-	public function parser() {
-		if (strpos(strtolower($this->text), '!ayat') !== FALSE)  return $this->cariAyat();
-		else if (strpos(strtolower($this->text), '!surat') !== false || strpos($this->text, '!surat') != false) return $this->cariSurat();
-		else if (strpos(strtolower($this->text), '!sari_quran') !== false || strpos($this->text, '!cari_quran') != false) return $this->cariAlquran();
-		else return $this->err_msg; //Nanti buat pesan kesalahan
-	}	
+		$this->text = str_replace('!cari_quran', '', strtolower($this->text));
+		$this->text = urlencode($this->text);
+		$json_array = $client->search($this->text, null, 'id.indonesian');
+		// echo $this->base_url.'search/'.$this->text.'/all/id';
+		$result = '';
+		$jumlah_ayat = 0;
+		foreach($json_array -> data as $data) {
+			foreach ($data as $matches => $match) {
+				if ($jumlah_ayat == 0) {
+					$result .= $match->text."\r\n\r\nBeberapa referensi lain:\r\n";
+				}
+				else {
+					$surah_name = $match->surah->name;
+					utf8_decode($surah_name);
+					$result .= $surah_name.':'.$match->numberInSurah."\r\n";
+				}
+
+				if ($jumlah_ayat > 5) break;
+				$jumlah_ayat ++;
+			}
+		}
+		unset($client);
+		if ($result!='') return $result;
+		return $this->err_result;
+	}
 }
