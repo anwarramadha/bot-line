@@ -49,11 +49,6 @@ class Quran
 		return FALSE;
 	}
 
-	// public static function getJson($url) {
-	// 	$json_raw = file_get_contents($url);
-	// 	return json_decode($json_raw);
-	// }
-
 	public function cariAyat() {
 		//buat objek client api
 		$client = new Client; 
@@ -93,7 +88,7 @@ class Quran
 		//buat objek alquran cloud client api
 		$client = new Client();
 
-		$this->text = str_replace('!cari_quran', '', strtolower($this->text));
+		$this->text = str_replace('!cariquran', '', strtolower($this->text));
 		$this->text = urlencode($this->text);
 		$json_array = $client->search($this->text, null, 'id.indonesian');
 		// echo $this->base_url.'search/'.$this->text.'/all/id';
